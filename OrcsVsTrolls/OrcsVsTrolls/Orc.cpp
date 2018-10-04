@@ -1,6 +1,11 @@
 #include "Orc.h"
 
-void ORC::setStats()
+Orc::Orc()
+{
+	setStats();
+}
+
+void Orc::setStats()
 {
 	m_health = 100;
 }
