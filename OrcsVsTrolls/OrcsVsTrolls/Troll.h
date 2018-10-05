@@ -7,6 +7,8 @@ class Troll : public Character
 {
 public:
 
+	Troll();
+
 protected:
 	
 	void setStats();

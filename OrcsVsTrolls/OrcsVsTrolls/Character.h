@@ -5,6 +5,8 @@ class Character
 {
 public:
 
+	Character();
+
 	virtual void setStats();
 
 protected:
