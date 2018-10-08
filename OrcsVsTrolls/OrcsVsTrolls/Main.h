@@ -5,7 +5,9 @@
 #include <string>
 
 Orc * orcWarriors[100];
+Orc * orcRaidParty[100];
 Troll * trollWarriors[100];
+Troll * trollRaidParty[100];
 
 enum class Faction
 {
@@ -43,3 +45,5 @@ void blacksmithLoop();
 void forgeSwords();
 void forgeShields();
 void preBattle();
+void addWarriors(PlayerType &t_playerType, int t_warriorsToAdd);
+void addWarriorsToRaidParty(PlayerType &t_playerType, int t_warriorsToAdd);

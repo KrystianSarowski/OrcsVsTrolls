@@ -207,7 +207,7 @@ void barracksLoop()
 	while (false == backToCamp)
 	{
 		std::cout << "*****************************************************************************\n";
-		std::cout << "Welcome to the barracks!";
+		std::cout << "Welcome to the barracks!" << std::endl;
 		std::cout << "The population of your camp is: " << player.campSize;
 		if (Faction::ORC == player.ourFaction)
 		{
@@ -282,6 +282,7 @@ void enlistLoop()
 		{
 			player.campSize -= villagersToEnlist;
 			player.armySize += villagersToEnlist;
+			addWarriors(player, villagersToEnlist);
 			break;
 		}
 
@@ -432,6 +433,73 @@ void preBattle()
 		{
 			std::cout << "You don't have that many warriors! \nTry again: ";
 			std::cin >> numOfWarriors;
+		}
+	}
+}
+
+void addWarriors(PlayerType & t_playerType, int t_warriorsToAdd)
+{
+	int warrirosAdded = 0;
+	int currentWarrior = 0;
+
+	if (Faction::ORC == t_playerType.ourFaction)
+	{
+		while(warrirosAdded != t_warriorsToAdd)
+		{
+			if (false == orcWarriors[currentWarrior]->getAlive())
+			{
+				orcWarriors[currentWarrior]->setAlive(true);
+				warrirosAdded++;
+			}
+			currentWarrior++;
+		}
+	}
+	else
+	{
+		while (warrirosAdded != t_warriorsToAdd)
+		{
+			if (false == trollWarriors[currentWarrior]->getAlive())
+			{
+				trollWarriors[currentWarrior]->setAlive(true);
+				warrirosAdded++;
+			}
+			currentWarrior++;
+		}
+	}
+}
+
+void addWarriorsToRaidParty(PlayerType & t_playerType, int t_warriorsToAdd)
+{
+	int warrirosAdded = 0;
+	int currentWarrior = 100;
+	int currentRaidWarrior = 0;
+
+
+	if (Faction::ORC == t_playerType.ourFaction)
+	{
+		while (warrirosAdded != t_warriorsToAdd)
+		{
+			if (true == orcWarriors[currentWarrior]->getAlive())
+			{
+				orcRaidParty[currentRaidWarrior] = orcWarriors[currentWarrior];
+				warrirosAdded++;
+				currentRaidWarrior++;
+			}
+			currentWarrior--;
+		}
+	}
+
+	else
+	{
+		while (warrirosAdded != t_warriorsToAdd)
+		{
+			if (true == trollWarriors[currentWarrior]->getAlive())
+			{
+				trollRaidParty[currentRaidWarrior] = trollWarriors[currentWarrior];
+				warrirosAdded++;
+				currentRaidWarrior++;
+			}
+			currentWarrior--;
 		}
 	}
 }
