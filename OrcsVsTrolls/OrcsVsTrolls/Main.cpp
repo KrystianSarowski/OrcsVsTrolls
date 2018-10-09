@@ -20,6 +20,8 @@ int main()
 
 void game()
 {
+	std::srand(static_cast<unsigned>(time(NULL)));
+
 	for (int i = 0; i < 10; i++)
 	{
 		orcWarriors[i]->setAlive(true);
@@ -27,7 +29,7 @@ void game()
 
 	for (int i = 0; i < 5; i++)
 	{
-		orcWarriors[i]->setAlive(true);
+		trollWarriors[i]->setAlive(true);
 	}
 
 	std::string factionChoice;
@@ -59,7 +61,8 @@ void game()
 
 	setFactionStartNumbers();
 	campLoop();
-	
+	campAI();
+	combatLoop();
 }
 
 void welcomeMessage()
@@ -138,6 +141,7 @@ void setWarriorPointers()
 void campLoop()
 {
 	bool battleTime = false;
+
 	while (false == battleTime)
 	{
 
@@ -186,6 +190,7 @@ void campLoop()
 
 			else if ("battle" == orders)
 			{
+				preBattle();
 				battleTime = true;
 				break;
 			}
@@ -282,7 +287,17 @@ void enlistLoop()
 		{
 			player.campSize -= villagersToEnlist;
 			player.armySize += villagersToEnlist;
-			addWarriors(player, villagersToEnlist);
+
+			if (Faction::ORC == player.ourFaction)
+			{
+				addWarriors(orcWarriors, villagersToEnlist);
+			}
+
+			else
+			{
+				addWarriors(trollWarriors, villagersToEnlist);
+			}
+
 			break;
 		}
 
@@ -406,7 +421,7 @@ void preBattle()
 	{
 		std::cout << "troll ";
 	}
-	std::cout << "is ready for battle!";
+	std::cout << "is ready for battle!" << std::endl;
 	std::cout << "Your army consists of: " << player.armySize;
 	if (Faction::ORC == player.ourFaction)
 	{
@@ -426,6 +441,16 @@ void preBattle()
 	{
 		if (player.armySize >= numOfWarriors && 0 <= numOfWarriors)
 		{
+			player.raidPartySize = numOfWarriors;
+			if (Faction::ORC == player.ourFaction)
+			{
+				addWarriorsToRaidParty(orcWarriors, orcRaidParty, player);
+			}
+
+			else
+			{
+				addWarriorsToRaidParty(trollWarriors, trollRaidParty, player);
+			}
 			break;
 		}
 
@@ -437,69 +462,188 @@ void preBattle()
 	}
 }
 
-void addWarriors(PlayerType & t_playerType, int t_warriorsToAdd)
+void addWarriors(Character * t_charWarriorArray[], int t_warriorsToAdd)
 {
 	int warrirosAdded = 0;
 	int currentWarrior = 0;
 
-	if (Faction::ORC == t_playerType.ourFaction)
+	while (warrirosAdded != t_warriorsToAdd)
 	{
-		while(warrirosAdded != t_warriorsToAdd)
+		if (false == t_charWarriorArray[currentWarrior]->getAlive())
 		{
-			if (false == orcWarriors[currentWarrior]->getAlive())
-			{
-				orcWarriors[currentWarrior]->setAlive(true);
-				warrirosAdded++;
-			}
-			currentWarrior++;
+			t_charWarriorArray[currentWarrior]->setAlive(true);
+			warrirosAdded++;
 		}
+		currentWarrior++;
 	}
+}
+
+void addWarriorsToRaidParty(Character * t_charArray[], Character * t_charPartyArray[], PlayerType &t_playerType)
+{
+	int warrirosAdded = 0;
+	int currentWarrior = 99;
+	int currentRaidWarrior = 0;
+
+
+	while (warrirosAdded != t_playerType.raidPartySize)
+	{
+		if (true == t_charArray[currentWarrior]->getAlive())
+		{
+			t_charPartyArray[currentRaidWarrior] = t_charArray[currentWarrior];
+			warrirosAdded++;
+			currentRaidWarrior++;
+		}
+		currentWarrior--;
+	}
+
+}
+
+void campAI()
+{
+	int warriorsToRecruit = (rand() % (computer.campSize / 4)) + computer.campSize / 4;
+	computer.campSize -= warriorsToRecruit;
+	computer.armySize += warriorsToRecruit;
+	if (Faction::ORC == computer.ourFaction)
+	{
+		addWarriors(orcWarriors, warriorsToRecruit);
+	}
+
 	else
 	{
-		while (warrirosAdded != t_warriorsToAdd)
+		addWarriors(trollWarriors, warriorsToRecruit);
+	}
+
+	int swordsToForge = rand() % 2;
+
+	if (computer.gold <= swordsToForge * 30)
+	{
+		computer.gold -= swordsToForge * 30;
+		computer.swords += swordsToForge;
+	}
+
+	int sheildsToForge = rand() % 4;
+
+	if (computer.gold <= sheildsToForge * 20)
+	{
+		computer.gold -= sheildsToForge * 20;
+		computer.sheild += sheildsToForge;
+	}
+
+	computer.raidPartySize = (rand() % (computer.armySize / 2)) + computer.armySize / 2;
+
+
+	if (Faction::ORC == computer.ourFaction)
+	{
+		addWarriorsToRaidParty(orcWarriors, orcRaidParty, computer);
+	}
+
+	else
+	{
+		addWarriorsToRaidParty(trollWarriors, trollRaidParty, computer);
+	}
+
+}
+
+void combatLoop()
+{
+	while (player.raidPartySize > 0 && computer.raidPartySize > 0)
+	{
+		bool playerTurn = false;
+
+		if (Faction::ORC == player.ourFaction)
 		{
-			if (false == trollWarriors[currentWarrior]->getAlive())
+
+			if (orcRaidParty[player.raidPartySize - 1]->rollForTurn() >= trollRaidParty[computer.raidPartySize - 1]->rollForTurn())
 			{
-				trollWarriors[currentWarrior]->setAlive(true);
-				warrirosAdded++;
+				playerTurn = true;
 			}
-			currentWarrior++;
+		}
+		else
+		{
+			if (trollRaidParty[player.raidPartySize - 1]->rollForTurn() >= orcRaidParty[computer.raidPartySize - 1]->rollForTurn())
+			{
+				playerTurn = true;
+			}
+		}
+
+		if (true == playerTurn)
+		{
+			playerBattleOptions();
 		}
 	}
 }
 
-void addWarriorsToRaidParty(PlayerType & t_playerType, int t_warriorsToAdd)
+void playerBattleOptions()
 {
-	int warrirosAdded = 0;
-	int currentWarrior = 100;
-	int currentRaidWarrior = 0;
-
-
-	if (Faction::ORC == t_playerType.ourFaction)
+	if (Faction::ORC == player.ourFaction)
 	{
-		while (warrirosAdded != t_warriorsToAdd)
-		{
-			if (true == orcWarriors[currentWarrior]->getAlive())
-			{
-				orcRaidParty[currentRaidWarrior] = orcWarriors[currentWarrior];
-				warrirosAdded++;
-				currentRaidWarrior++;
-			}
-			currentWarrior--;
-		}
+		printWarriorInfo(orcRaidParty, trollRaidParty);
 	}
-
 	else
 	{
-		while (warrirosAdded != t_warriorsToAdd)
+		printWarriorInfo(trollRaidParty, orcRaidParty);
+	}
+
+	std::cout << "Select what action you want to carry out by typing in its number. " << std::endl;
+	std::cout << "Attacks deal damage to the enemy. " << std::endl;
+	std::cout << "Defences increase your protection until your next turn." << std::endl;
+	std::cout << "Sword instanly kills you foe unless they have a shield up." << std::endl;
+	std::cout << "Shiled gives you 100 % protection until damage is taken." << std::endl;
+	std::cout << "Enter Action number: ";
+
+	int playerAction;
+	std::cin >> playerAction;
+
+	while (true)
+	{
+		if (1 >= playerAction && 3 <= playerAction)
 		{
-			if (true == trollWarriors[currentWarrior]->getAlive())
-			{
-				trollRaidParty[currentRaidWarrior] = trollWarriors[currentWarrior];
-				warrirosAdded++;
-				currentRaidWarrior++;
-			}
-			currentWarrior--;
+
+		}
+
+		else if (4 == playerAction || 5 == playerAction)
+		{
+
+		}
+
+		else if (6 == playerAction)
+		{
+
+		}
+		else if (7 == playerAction)
+		{
+
+		}
+		else
+		{
+			std::cout << "Incorrect action number try again: ";
+			std::cin >> playerAction;
 		}
 	}
+}
+
+void printWarriorInfo(Character * t_ourPartyArray[], Character * t_enemyPartyArray[])
+{
+	std::cout << "*****************************************************************************\n";
+	std::cout << "Your warrior's health is: ";
+	t_ourPartyArray[player.raidPartySize - 1]->printHealth();
+	std::cout << "Enemy warrior's health is: ";
+	t_enemyPartyArray[computer.raidPartySize - 1]->printHealth();
+
+	std::cout << "ATTACKS" << std::endl;
+	std::cout << "Action 1: ";
+	t_ourPartyArray[player.raidPartySize - 1]->printMelee1();
+	std::cout << "Action 2: ";
+	t_ourPartyArray[player.raidPartySize - 1]->printMelee2();
+	std::cout << "Action 3: ";
+	t_ourPartyArray[player.raidPartySize - 1]->printMelee3();
+	std::cout << "DEFENCES" << std::endl;
+	std::cout << "Action 4: ";
+	t_ourPartyArray[player.raidPartySize - 1]->printDefence1();
+	std::cout << "Action 5: ";
+	t_ourPartyArray[player.raidPartySize - 1]->printDefence2();
+	std::cout << "ITEMS" << std::endl;
+	std::cout << "Action 6: swords(" << player.swords << ")" << std::endl;
+	std::cout << "Action 7: shields(" << player.sheild << ")" << std::endl;
+	std::cout << "*****************************************************************************\n";
 }

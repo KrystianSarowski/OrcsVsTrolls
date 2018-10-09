@@ -3,11 +3,13 @@
 #include "Orc.h"
 #include "Troll.h"
 #include <string>
+#include <cstdlib>
+#include <time.h>
 
-Orc * orcWarriors[100];
-Orc * orcRaidParty[100];
-Troll * trollWarriors[100];
-Troll * trollRaidParty[100];
+Character * orcWarriors[100];
+Character * orcRaidParty[100];
+Character * trollWarriors[100];
+Character * trollRaidParty[100];
 
 enum class Faction
 {
@@ -20,6 +22,7 @@ struct PlayerType
 	int gold{ 200 };
 	int armySize{ 0 };
 	int campSize{ 0 };
+	int raidPartySize{ 0 };
 	int swords{ 5 };
 	int sheild{ 5 };
 	int spells{ 0 };
@@ -45,5 +48,9 @@ void blacksmithLoop();
 void forgeSwords();
 void forgeShields();
 void preBattle();
-void addWarriors(PlayerType &t_playerType, int t_warriorsToAdd);
-void addWarriorsToRaidParty(PlayerType &t_playerType, int t_warriorsToAdd);
+void addWarriors(Character * t_charWarriorArray[], int t_warriorsToAdd);
+void addWarriorsToRaidParty(Character * t_charArray[], Character * t_charPartyArray[],PlayerType &t_playerType);
+void campAI();
+void combatLoop();
+void playerBattleOptions();
+void printWarriorInfo(Character * t_ourPartyArray[], Character * t_enemyPartyArray[]);
