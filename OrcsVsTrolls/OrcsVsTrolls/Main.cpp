@@ -22,6 +22,22 @@ void game()
 {
 	std::srand(static_cast<unsigned>(time(NULL)));
 
+	victory = false;
+	defeat = false;
+
+	resetPlayerType(player);
+	resetPlayerType(computer);
+
+	for (int i = 0; i < 100; i++)
+	{
+		orcWarriors[i]->setAlive(false);
+	}
+
+	for (int i = 0; i < 100; i++)
+	{
+		trollWarriors[i]->setAlive(false);
+	}
+
 	for (int i = 0; i < 10; i++)
 	{
 		orcWarriors[i]->setAlive(true);
@@ -60,9 +76,104 @@ void game()
 	}
 
 	setFactionStartNumbers();
-	campLoop();
-	campAI();
-	combatLoop();
+	gameLoop();
+
+	if (true == victory)
+	{
+		std::cout << "*****************************************************************************\n";
+		std::cout << "You have succesful taken over the ";
+		if (Faction::ORC == player.ourFaction)
+		{
+			std::cout << "troll's ";
+		}
+		else
+		{
+			std::cout << "orc's ";
+		}
+		std::cout << "camp and brought peace to this land!" << std::endl;
+	}
+	else
+	{
+		std::cout << "*****************************************************************************\n";
+		std::cout << "Your camp has been taken over by ";
+		if (Faction::ORC == player.ourFaction)
+		{
+			std::cout << "trolls";
+		}
+		else
+		{
+			std::cout << "orcs";
+		}
+		std::cout << ". Dark times are ahead of this land." << std::endl;
+	}
+}
+
+void gameLoop()
+{
+	while (false == defeat && false == victory)
+	{
+		campLoop();
+		campAI();
+		combatLoop();
+		battleConclusion();
+
+		if (true == player.campAttacked)
+		{
+			player.raidPartySize = player.armySize;
+			player.armySize = 0;
+			if (Faction::ORC == player.ourFaction)
+			{
+				addWarriorsToRaidParty(orcWarriors, orcRaidParty, player);
+			}
+			else
+			{
+				addWarriorsToRaidParty(trollWarriors, trollRaidParty, player);
+			}
+			std::cout << "Enemy has begun siege over your camp!" << std::endl;
+			std::cout << "You have: " << player.raidPartySize << " warriors left" << std::endl;
+			std::cout << "Enemy has: " << computer.raidPartySize << " warriors left" << std::endl;
+			system("PAUSE");
+			combatLoop();
+
+			if (0 == player.raidPartySize)
+			{
+				defeat = true;
+				continue;
+			}
+
+		}
+		else if (true == computer.campAttacked)
+		{
+			computer.raidPartySize = computer.armySize;
+			computer.armySize = 0;
+			if (Faction::ORC == computer.ourFaction)
+			{
+				addWarriorsToRaidParty(orcWarriors, orcRaidParty, computer);
+			}
+			else
+			{
+				addWarriorsToRaidParty(trollWarriors, trollRaidParty, computer);
+			}
+			std::cout << "*****************************************************************************\n";
+			std::cout << "You have begun the siege of enemy camp!" << std::endl;
+			std::cout << "You have: " << player.raidPartySize << " warriors left" << std::endl;
+			std::cout << "Enemy has: " << computer.raidPartySize << " warriors left" << std::endl;
+			system("PAUSE");
+			combatLoop();
+
+			if (0 == computer.raidPartySize)
+			{
+				victory = true;
+				continue;
+			}
+		}
+
+		player.armySize += player.raidPartySize;
+		computer.armySize += computer.raidPartySize;
+		player.campSize = player.campSize * 2;
+		computer.campSize = computer.campSize * 2;
+		resetWarriorArray();
+	}
 }
 
 void welcomeMessage()
@@ -442,6 +553,7 @@ void preBattle()
 		if (player.armySize >= numOfWarriors && 0 <= numOfWarriors)
 		{
 			player.raidPartySize = numOfWarriors;
+			player.armySize -= numOfWarriors;
 			if (Faction::ORC == player.ourFaction)
 			{
 				addWarriorsToRaidParty(orcWarriors, orcRaidParty, player);
@@ -480,6 +592,7 @@ void addWarriors(Character * t_charWarriorArray[], int t_warriorsToAdd)
 
 void addWarriorsToRaidParty(Character * t_charArray[], Character * t_charPartyArray[], PlayerType &t_playerType)
 {
+	resetRaidPartyArray(t_charPartyArray);
 	int warrirosAdded = 0;
 	int currentWarrior = 99;
 	int currentRaidWarrior = 0;
@@ -530,7 +643,7 @@ void campAI()
 	}
 
 	computer.raidPartySize = (rand() % ((computer.armySize / 2) + 1)) + computer.armySize / 2;
-
+	computer.armySize -= computer.raidPartySize;
 
 	if (Faction::ORC == computer.ourFaction)
 	{
@@ -568,7 +681,18 @@ void combatLoop()
 
 		if (true == playerTurn)
 		{
+			std::cout << "*****************************************************************************\n";
+			std::cout << "It is your turn now!" << std::endl;
+			system("PAUSE");
 			playerBattleOptions();
+		}
+
+		else
+		{
+			std::cout << "*****************************************************************************\n";
+			std::cout << "It is enemy's turn now!" << std::endl;
+			system("PAUSE");
+			computerBattleOptions();
 		}
 	}
 }
@@ -596,26 +720,83 @@ void playerBattleOptions()
 
 	while (true)
 	{
-		if (1 >= playerAction && 3 <= playerAction)
+		if (1 <= playerAction && 3 >= playerAction)
 		{
-
+			if (Faction::ORC == player.ourFaction)
+			{
+				attackEnemy(orcRaidParty, trollRaidParty, computer, playerAction, player.raidPartySize);
+			}
+			else
+			{
+				attackEnemy(trollRaidParty, orcRaidParty, computer, playerAction, player.raidPartySize);
+			}
+			break;
 		}
 
 		else if (4 == playerAction || 5 == playerAction)
 		{
-
+			std::cout << "*****************************************************************************\n";
+			if (Faction::ORC == player.ourFaction)
+			{
+				defendYourself(orcRaidParty, playerAction, player.raidPartySize);
+			}
+			else
+			{
+				defendYourself(trollRaidParty, playerAction, player.raidPartySize);
+			}
+			break;
 		}
 
 		else if (6 == playerAction)
 		{
+			if (player.swords > 0)
+			{
+				std::cout << "*****************************************************************************\n";
+				std::cout << "You have used a sword!" << std::endl;
+				if (false == computer.shieldActive)
+				{
+					if (Faction::ORC == player.ourFaction)
+					{
+						trollRaidParty[computer.raidPartySize - 1]->kill();
+					}
+					else
+					{
+						orcRaidParty[computer.raidPartySize - 1]->kill();
+					}
+					computer.raidPartySize--;
+				}
+				else
+				{
+					std::cout << "Enemy shield has been destroyed! " << std::endl;
+					computer.shieldActive = false;
+				}
+				player.swords--;
+				system("Pause");
+				break;
+			}
 
+			else
+			{
+				std::cout << "You don't have that many swords choose a diffrent action: ";
+				std::cin >> playerAction;
+			}
 		}
+
 		else if (7 == playerAction)
 		{
 			if (player.sheild > 0)
 			{
 				player.shieldActive = true;
 				player.sheild--;
+				std::cout << "*****************************************************************************\n";
+				std::cout << "Shield has been equipped!" << std::endl;
+				system("PAUSE");
+				break;
+			}
+			else
+			{
+				std::cout << "You don't have that many shields choose a diffrent action: ";
+				std::cin >> playerAction;
 			}
 		}
 		else
@@ -626,9 +807,98 @@ void playerBattleOptions()
 	}
 }
 
+void computerBattleOptions()
+{
+	int computerAction = (rand() % 7) + 1;
+
+	while (true)
+	{
+		if (1 <= computerAction && 3 >= computerAction)
+		{
+			if (Faction::ORC == computer.ourFaction)
+			{
+				attackEnemy(orcRaidParty, trollRaidParty, player, computerAction, computer.raidPartySize);
+			}
+			else
+			{
+				attackEnemy(trollRaidParty, orcRaidParty, player, computerAction, computer.raidPartySize);
+			}
+			break;
+		}
+
+		else if (4 == computerAction || 5 == computerAction)
+		{
+			std::cout << "*****************************************************************************\n";
+			if (Faction::ORC == computer.ourFaction)
+			{
+				defendYourself(orcRaidParty, computerAction, computer.raidPartySize);
+			}
+			else
+			{
+				defendYourself(trollRaidParty, computerAction, computer.raidPartySize);
+			}
+			break;
+		}
+
+		else if (6 == computerAction)
+		{
+			if (computer.swords > 0)
+			{
+				std::cout << "*****************************************************************************\n";
+				std::cout << "Enemy has used a sword!" << std::endl;
+				if (false == player.shieldActive)
+				{
+					if (Faction::ORC == computer.ourFaction)
+					{
+						trollRaidParty[player.raidPartySize - 1]->kill();
+					}
+					else
+					{
+						orcRaidParty[player.raidPartySize - 1]->kill();
+					}
+					player.raidPartySize--;
+				}
+				else
+				{
+					std::cout << "Shield has been destroyed! " << std::endl;
+					player.shieldActive = false;
+				}
+				computer.swords--;
+				break;
+			}
+
+			else
+			{
+				computerAction = (rand() % 7) + 1;
+			}
+		}
+
+		else if (7 == computerAction)
+		{
+			if (computer.sheild > 0)
+			{
+				computer.shieldActive = true;
+				computer.sheild--;
+				std::cout << "*****************************************************************************\n";
+				std::cout << "Enemy equipped a shield!" << std::endl;
+				break;
+			}
+			else
+			{
+				computerAction = (rand() % 7) + 1;
+			}
+		}
+	}
+
+	std::cout << "You have: " << player.raidPartySize << " warriors left" << std::endl;
+	system("PAUSE");
+}
+
 void printWarriorInfo(Character * t_ourPartyArray[], Character * t_enemyPartyArray[])
 {
 	std::cout << "*****************************************************************************\n";
+	std::cout << "You have: " << player.raidPartySize << " warriors left" << std::endl;
+	std::cout << "Enemy has: " << computer.raidPartySize << " warriors left" << std::endl;
 	std::cout << "Your warrior's health is: ";
 	t_ourPartyArray[player.raidPartySize - 1]->printHealth();
 	std::cout << "Enemy warrior's health is: ";
@@ -650,4 +920,148 @@ void printWarriorInfo(Character * t_ourPartyArray[], Character * t_enemyPartyArr
 	std::cout << "Action 6: swords(" << player.swords << ")" << std::endl;
 	std::cout << "Action 7: shields(" << player.sheild << ")" << std::endl;
 	std::cout << "*****************************************************************************\n";
+}
+
+void attackEnemy(Character * t_ourPartyArray[], Character * t_enemyPartyArray[], PlayerType & t_enemyType, int t_actionNum, int t_ourPartySize)
+{
+	std::cout << "*****************************************************************************\n";
+	if (false == t_enemyType.shieldActive)
+	{
+		int incomingDamage;
+		if (1 == t_actionNum)
+		{
+			incomingDamage = t_ourPartyArray[t_ourPartySize - 1]->melee1();
+
+			if (t_enemyPartyArray[t_enemyType.raidPartySize - 1]->takeDamage(incomingDamage))
+			{
+				t_enemyType.raidPartySize--;
+			}
+		}
+
+		else if (2 == t_actionNum)
+		{
+			incomingDamage = t_ourPartyArray[t_ourPartySize - 1]->melee2();
+
+			if (t_enemyPartyArray[t_enemyType.raidPartySize - 1]->takeDamage(incomingDamage))
+			{
+				t_enemyType.raidPartySize--;
+			}
+		}
+
+		else
+		{
+			incomingDamage = t_ourPartyArray[t_ourPartySize - 1]->melee3();
+
+			if (t_enemyPartyArray[t_enemyType.raidPartySize - 1]->takeDamage(incomingDamage))
+			{
+				t_enemyType.raidPartySize--;
+			}
+		}
+	}
+
+	else
+	{
+		std::cout << "Shield has been destroyed! " << std::endl;
+		t_enemyType.shieldActive = false;
+	}
+	system("PAUSE");
+}
+
+void defendYourself(Character * t_ourPartyArray[], int t_actionNum, int t_ourPartySize)
+{
+	if (4 == t_actionNum)
+	{
+		t_ourPartyArray[t_ourPartySize - 1]->defence1();
+	}
+
+	else
+	{
+		t_ourPartyArray[t_ourPartySize - 1]->defence2();
+	}
+
+	system("PAUSE");
+}
+
+void battleConclusion()
+{
+	if (computer.raidPartySize == 0)
+	{
+		std::cout << "*****************************************************************************\n";
+		std::cout << "You have Won the Battle!" << std::endl;
+		std::cout << "All enemy ";
+		if (Faction::ORC == player.ourFaction)
+		{
+			std::cout << "orcs have been killed!" << std::endl;
+		}
+		else
+		{
+			std::cout << "trolls have been killed!" << std::endl;
+		}
+		system("PAUSE");
+		std::cout << "*****************************************************************************\n";
+		std::cout << "Do you wish to attack enemy camp?" << std::endl;
+		std::cout << "Type in (yes) to attack enemy camp, anything else to return to your camp:" << std::endl;
+		std::string playerDecision;
+		std::cin >> playerDecision;
+
+		if ("yes" == playerDecision)
+		{
+			computer.campAttacked = true;
+		}
+
+		player.gold += 100;
+	}
+	else
+	{
+		std::cout << "*****************************************************************************\n";
+		std::cout << "You have lost the Battle!" << std::endl;
+		std::cout << "All your ";
+		if (Faction::ORC == player.ourFaction)
+		{
+			std::cout << "orcs have been killed!" << std::endl;
+		}
+		else
+		{
+			std::cout << "trolls have been killed!" << std::endl;
+		}
+		system("PAUSE");
+
+		int computerDecision = rand() % 2;
+		if (0 == computerDecision)
+		{
+			player.campAttacked = true;
+		}
+		computer.gold += 100;
+	}
+}
+
+void resetRaidPartyArray(Character * t_partyArray[])
+{
+	for (int i = 0; i < 100; i++)
+	{
+		t_partyArray[i] = nullptr;
+	}
+}
+
+void resetWarriorArray()
+{
+	for (int i = 0; i < 100; i++)
+	{
+		orcWarriors[i]->resetStats();
+		trollWarriors[i]->resetStats();
+	}
+}
+
+void resetPlayerType(PlayerType &t_playerType)
+{
+	t_playerType.gold = 200;
+	t_playerType.armySize = 0;
+	t_playerType.campSize = 0;
+	t_playerType.raidPartySize = 0;
+	t_playerType.swords = 5;
+	t_playerType.sheild = 5;
+
+	t_playerType.shieldActive = false;
+	t_playerType.campAttacked = false;
+
 }

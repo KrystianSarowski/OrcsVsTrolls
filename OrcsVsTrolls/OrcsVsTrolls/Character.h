@@ -19,6 +19,7 @@ public:
 	void setAlive(bool t_aliveState);
 
 	bool getAlive() const;
+	bool takeDamage(int t_incomingDamage);
 
 	int rollForTurn() const;
 
@@ -29,6 +30,8 @@ public:
 	virtual void defence1() = 0;
 	virtual void defence2() = 0;
 
+	void kill();
+
 protected:
 
 	int m_health;
@@ -38,10 +41,12 @@ protected:
 
 	bool m_alive;
 
+	std::string m_charName;
 	std::string m_melee1Name;
 	std::string m_melee2Name;
 	std::string m_melee3Name;
 	std::string m_defence1Name;
 	std::string m_defence2Name;
+
 };
 

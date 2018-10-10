@@ -11,6 +11,8 @@ Character * orcRaidParty[100];
 Character * trollWarriors[100];
 Character * trollRaidParty[100];
 
+Orc bob;
+
 enum class Faction
 {
 	ORC,
@@ -28,6 +30,7 @@ struct PlayerType
 	int spells{ 0 };
 
 	bool shieldActive{ false };
+	bool campAttacked{ false };
 
 	Faction ourFaction;
 };
@@ -35,8 +38,11 @@ struct PlayerType
 PlayerType player;
 PlayerType computer;
 
+bool victory;
+bool defeat;
 
 void game();
+void gameLoop();
 void welcomeMessage();
 void rules();
 void setFactionStartNumbers();
@@ -55,4 +61,12 @@ void addWarriorsToRaidParty(Character * t_charArray[], Character * t_charPartyAr
 void campAI();
 void combatLoop();
 void playerBattleOptions();
+void computerBattleOptions();
 void printWarriorInfo(Character * t_ourPartyArray[], Character * t_enemyPartyArray[]);
+void attackEnemy(Character * t_ourPartyArray[], Character * t_enemyPartyArray[],
+	PlayerType &t_enemyType, int t_actionNum, int t_ourPartySize);
+void defendYourself(Character * t_ourPartyArray[], int t_actionNum, int t_ourPartySize);
+void battleConclusion();
+void resetRaidPartyArray(Character * t_partyArray[]);
+void resetWarriorArray();
+void resetPlayerType(PlayerType &t_playerType);

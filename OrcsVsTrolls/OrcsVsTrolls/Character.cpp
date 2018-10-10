@@ -46,6 +46,7 @@ void Character::printDefence2()
 
 void Character::setAlive(bool t_aliveState)
 {
+	setStats();
 	m_alive = t_aliveState;
 }
 
@@ -54,8 +55,34 @@ bool Character::getAlive() const
 	return m_alive;
 }
 
+bool Character::takeDamage(int t_incomingDamage)
+{
+	t_incomingDamage -= m_defence;
+
+	if (t_incomingDamage > 0)
+	{
+		std::cout << m_charName << " has taken: " << t_incomingDamage << " damage" << std::endl;
+		m_health -= t_incomingDamage;
+
+		if (m_health <= 0)
+		{
+			kill();
+			return true;
+		}
+	}
+
+
+	return false;
+}
+
 int Character::rollForTurn() const
 {
 	return ((rand() % 30) + m_speed);
+}
+
+void Character::kill()
+{
+	std::cout << m_charName << " took a fatal blow!" << std::endl;
+	m_alive = false;
 }
 
