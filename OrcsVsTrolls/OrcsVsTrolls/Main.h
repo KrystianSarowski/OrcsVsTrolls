@@ -27,6 +27,8 @@ struct PlayerType
 	int sheild{ 5 };
 	int spells{ 0 };
 
+	bool shieldActive{ false };
+
 	Faction ourFaction;
 };
 

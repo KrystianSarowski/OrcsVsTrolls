@@ -529,7 +529,7 @@ void campAI()
 		computer.sheild += sheildsToForge;
 	}
 
-	computer.raidPartySize = (rand() % (computer.armySize / 2)) + computer.armySize / 2;
+	computer.raidPartySize = (rand() % ((computer.armySize / 2) + 1)) + computer.armySize / 2;
 
 
 	if (Faction::ORC == computer.ourFaction)
@@ -612,7 +612,11 @@ void playerBattleOptions()
 		}
 		else if (7 == playerAction)
 		{
-
+			if (player.sheild > 0)
+			{
+				player.shieldActive = true;
+				player.sheild--;
+			}
 		}
 		else
 		{
