@@ -1,16 +1,25 @@
 #include "Main.h"
-
+/// <summary>
+/// @Author: Krystian Satowski
+/// @Student Num: C00225629
+/// @Date 11-10-18
+/// @Time Taken 10h
+/// @Description - Turn based combat in which the player chooses to either play as orc and troll.
+/// Objective of the game is to take over the other faction's camp.
+/// @BUGS - In some areas where you are ask for input the program breaks when you enter in letters.
+/// </summary>
 
 int main()
 {
-	std::string keepPlaying = "Yes";
+	std::string keepPlaying = "Yes";	//String ues to check if the player wants to keep playing
 	welcomeMessage();
 	setWarriorPointers();
 
+	//Whole program loop.
 	while ("Yes" == keepPlaying)
 	{
 		game();
-		std::cout << "Do you wish to play again? \nType Yes to keep playing anything else to quite. " << std::endl;
+		std::cout << "Do you wish to play again? \nType Yes to keep playing anything else to quite: ";
 		std::cin >> keepPlaying;
 	}
 	
@@ -18,16 +27,25 @@ int main()
 	return 0;
 }
 
+/// <summary>
+/// The main game function from which all the major loops are called from.
+/// Once the end of this function has been reached the program has completed 1 walthrough of the program.
+/// </summary>
 void game()
 {
+	//We seed the random number generator.
 	std::srand(static_cast<unsigned>(time(NULL)));
 
 	victory = false;
 	defeat = false;
 
+	//Reset the value of the player and computer.
+	//Unessecary the first time but need for if the user wants to play again.
 	resetPlayerType(player);
 	resetPlayerType(computer);
 
+
+	//We set all characters to be first not alive and then some of them to be alive.
 	for (int i = 0; i < 100; i++)
 	{
 		orcWarriors[i]->setAlive(false);
@@ -48,7 +66,7 @@ void game()
 		trollWarriors[i]->setAlive(true);
 	}
 
-	std::string factionChoice;
+	std::string factionChoice;				//The race the player wants to be.
 	std::cout << "Select what faction you want to play by typing orcs or trolls: ";
 	std::cin >> factionChoice;
 
@@ -76,8 +94,11 @@ void game()
 	}
 
 	setFactionStartNumbers();
+
+	//Here we enter the gameplay loop where we gone stay for most of the game.
 	gameLoop();
 
+	//The player has won the game.
 	if (true == victory)
 	{
 		std::cout << "*****************************************************************************\n";
@@ -92,6 +113,8 @@ void game()
 		}
 		std::cout << "camp and brought peace to this land!" << std::endl;
 	}
+
+	//The player has lost the game.
 	else
 	{
 		std::cout << "*****************************************************************************\n";
@@ -108,6 +131,9 @@ void game()
 	}
 }
 
+/// <summary>
+/// The loop in which is gone reapeat all the steps over and over again until the player wins or loses.
+/// </summary>
 void gameLoop()
 {
 	while (false == defeat && false == victory)
@@ -117,10 +143,12 @@ void gameLoop()
 		combatLoop();
 		battleConclusion();
 
+		//Players camp is being attacked by the AI.
 		if (true == player.campAttacked)
 		{
 			player.raidPartySize = player.armySize;
 			player.armySize = 0;
+
 			if (Faction::ORC == player.ourFaction)
 			{
 				addWarriorsToRaidParty(orcWarriors, orcRaidParty, player);
@@ -135,6 +163,7 @@ void gameLoop()
 			system("PAUSE");
 			combatLoop();
 
+			//Player could not defend his camp.
 			if (0 == player.raidPartySize)
 			{
 				defeat = true;
@@ -142,6 +171,8 @@ void gameLoop()
 			}
 
 		}
+
+		//Player is attacking the AI's camp.
 		else if (true == computer.campAttacked)
 		{
 			computer.raidPartySize = computer.armySize;
@@ -161,6 +192,7 @@ void gameLoop()
 			system("PAUSE");
 			combatLoop();
 
+			//AI could not defend his camp.
 			if (0 == computer.raidPartySize)
 			{
 				victory = true;
@@ -168,6 +200,7 @@ void gameLoop()
 			}
 		}
 
+		//The day has come to an end and player and Ai returns to their camp.
 		player.armySize += player.raidPartySize;
 		computer.armySize += computer.raidPartySize;
 		player.campSize = player.campSize * 2;
@@ -176,6 +209,9 @@ void gameLoop()
 	}
 }
 
+/// <summary>
+/// The greeting message that is displayed to the user when he first launches the program.
+/// </summary>
 void welcomeMessage()
 {
 	std::cout << "*****************************************************************************\n";
@@ -186,6 +222,9 @@ void welcomeMessage()
 	rules();
 }
 
+/// <summary>
+/// The rules message that is displayed to the user when he first launches the game.
+/// </summary>
 void rules()
 {
 	std::cout << "*****************************************************************************\n";
@@ -197,13 +236,13 @@ void rules()
 	std::cout << "Phase 1: In this phase you are in the camp where you manage your resources." << std::endl;
 	std::cout << "You can select the number of villagers to enlist a warriors." << std::endl;
 	std::cout << "Note that population doubles when you come back to the camp after battle." << std::endl;
-	std::cout << "In the camp you can alos buy swords and shields that can be used in combat." << std::endl;
+	std::cout << "In the camp you can also buy swords and shields that can be used in combat." << std::endl;
 	std::cout << "*****************************************************************************\n";
 	std::cout << "Phase 2: You need to choose how many warriors you want to send to fight." << std::endl;
 	std::cout << "Rest of them stay to defend the camp in case you lost." << std::endl;
-	std::cout << "Who attacks is choosen randomly though orcs attack twice as often." << std::endl;
-	std::cout << "A shield can be used to negate any incoming damage unless a sword is used." << std::endl;
-	std::cout << "A sword will kill the orc that is attacked unless a shield is used." << std::endl;
+	std::cout << "Who attacks is choosen randomly though orcs more often." << std::endl;
+	std::cout << "A shield can be used to negate any incoming damage and insta kill from sword." << std::endl;
+	std::cout << "A sword will kill the warrior that is attacked unless a shield is used." << std::endl;
 	std::cout << "The combat ends when the last warrior of the other faction is dead." << std::endl;
 	std::cout << "*****************************************************************************\n";
 	std::cout << "Phase 3: The winner of the battle will recive gold for victory and option" << std::endl;
@@ -213,6 +252,9 @@ void rules()
 	system("PAUSE");
 }
 
+/// <summary>
+/// Assigns the approperate values of warriors and villagers in camp based on the player's choice.
+/// </summary>
 void setFactionStartNumbers()
 {
 	if (Faction::ORC == player.ourFaction)
@@ -228,18 +270,27 @@ void setFactionStartNumbers()
 	}
 }
 
+/// <summary>
+/// Assigns the troll camp values to that passed in player type.
+/// </summary>
 void assignTrolls(PlayerType &t_playerType)
 {
 	t_playerType.armySize = 5;
 	t_playerType.campSize = 10;
 }
 
+/// <summary>
+/// Assigns the orc camp values to that passed in player type.
+/// </summary>
 void assignOrcs(PlayerType &t_playerType)
 {
 	t_playerType.armySize = 10;
 	t_playerType.campSize = 15;
 }
 
+/// <summary>
+/// Creates the objects the pointer arrays point to.
+/// </summary>
 void setWarriorPointers()
 {
 	for (int i = 0; i < 100; i++)
@@ -249,6 +300,10 @@ void setWarriorPointers()
 	}
 }
 
+/// <summary>
+/// Loop used for the player to access all of the camp features.
+/// The player can enter the barracks, forge or go to battle from here.
+/// </summary>
 void campLoop()
 {
 	bool battleTime = false;
@@ -282,7 +337,7 @@ void campLoop()
 		}
 		std::cout << "type out (battle): ";
 
-		std::string orders;
+		std::string orders;				//Used to check what action the player wants to carry out.
 		std::cin >> orders;
 
 		while (true)
@@ -316,6 +371,9 @@ void campLoop()
 
 }
 
+/// <summary>
+/// In here the player is able to see the number of villagers he has and the number of warriors he has.
+/// </summary>
 void barracksLoop()
 {
 	bool backToCamp = false;
@@ -348,7 +406,7 @@ void barracksLoop()
 		std::cout << "To enlist warriors from the camp type in (enlist). " << std::endl;
 		std::cout << "To return to the main camp type in (return): ";
 
-		std::string orders;
+		std::string orders;					//Used to check what player wants to do.
 		std::cin >> orders;
 
 		while (true)
@@ -374,6 +432,9 @@ void barracksLoop()
 	}
 }
 
+/// <summary>
+/// Used to enlist the villagers as warriors based on the number entered by the player.
+/// </summary>
 void enlistLoop()
 {
 	std::cout << "*****************************************************************************\n";
@@ -389,13 +450,14 @@ void enlistLoop()
 
 	std::cout << "you want to enlist: ";
 
-	int villagersToEnlist;
+	int villagersToEnlist;				//The number of villagers the player wants to enlist as warriors.
 	std::cin >> villagersToEnlist;
 
 	while (true)
 	{
 		if (player.campSize >= villagersToEnlist &&  0 <= villagersToEnlist)
 		{
+			//We take does villagers away from the camp population and add them to warrior population.
 			player.campSize -= villagersToEnlist;
 			player.armySize += villagersToEnlist;
 
@@ -412,6 +474,7 @@ void enlistLoop()
 			break;
 		}
 
+		//The player tried to enlist more units than he could or typed in a negative.
 		else
 		{
 			std::cout << "Incorrect input! \nTry again: ";
@@ -420,6 +483,9 @@ void enlistLoop()
 	}
 }
 
+/// <summary>
+/// Used to display to the player the number of sword and shields he has awell as the gold he possess.
+/// </summary>
 void blacksmithLoop()
 {
 	bool backToCamp = false;
@@ -430,13 +496,13 @@ void blacksmithLoop()
 		std::cout << "Welcome to the blacksmith!";
 		std::cout << "Your vault contains: " << player.gold << " gold" << std::endl;
 		std::cout << "The number of swords you have is: " << player.swords << std::endl;
-		std::cout << "The number of swords you have is: " << player.sheild << std::endl;
+		std::cout << "The number of swords you have is: " << player.sheilds << std::endl;
 		std::cout << "*****************************************************************************\n";
 		std::cout << "To forge swords type in (swords). " << std::endl;
 		std::cout << "To forge swords type in (shields). " << std::endl;
 		std::cout << "To return to the main camp type in (return): ";
 
-		std::string orders;
+		std::string orders;				//Used to check what the player wants to do.
 		std::cin >> orders;
 
 		while (true)
@@ -467,14 +533,16 @@ void blacksmithLoop()
 		}
 	}
 }
-
+/// <summary>
+/// Displays the cost of the swords to the player and allows the player to forge more swords if he has enough gold.
+/// </summary>
 void forgeSwords()
 {
 	std::cout << "*****************************************************************************\n";
 	std::cout << "Each sword costs 30 gold to forge." << std::endl;
 	std::cout << "Enter the number of swords you want to purchase: ";
 
-	int numSwordsToForge;
+	int numSwordsToForge;					//The number of swords the player wants to forge.
 	std::cin >> numSwordsToForge;
 
 	while (true)
@@ -486,6 +554,7 @@ void forgeSwords()
 			break;
 		}
 
+		//The player does not have enough gold or he enetered a negative number.
 		else
 		{
 			std::cout << "You don't have that much gold! \nTry again: ";
@@ -494,32 +563,39 @@ void forgeSwords()
 	}
 }
 
+/// <summary>
+/// Displays the cost of the shields to the player and allows the player to forge more swords if he has enough gold.
+/// </summary>
 void forgeShields()
 {
 	std::cout << "*****************************************************************************\n";
 	std::cout << "Each shield costs 20 gold to forge." << std::endl;
 	std::cout << "Enter the number of shileds you want to purchase: ";
 
-	int numshiledsToForge;
-	std::cin >> numshiledsToForge;
+	int numShiledsToForge;					//The number of shields the player wants to forge.
+	std::cin >> numShiledsToForge;
 
 	while (true)
 	{
-		if (player.gold >= numshiledsToForge * 20 && 0 <= numshiledsToForge)
+		if (player.gold >= numShiledsToForge * 20 && 0 <= numShiledsToForge)
 		{
-			player.gold -= numshiledsToForge * 20;
-			player.sheild += numshiledsToForge;
+			player.gold -= numShiledsToForge * 20;
+			player.sheilds += numShiledsToForge;
 			break;
 		}
 
+		//The player does not have enough gold or he enetered a negative number.
 		else
 		{
 			std::cout << "You don't have that much gold! \nTry again: ";
-			std::cin >> numshiledsToForge;
+			std::cin >> numShiledsToForge;
 		}
 	}
 }
 
+/// <summary>
+/// Used to allow the player to choose the number of warriors he wants to bring into battle.
+/// </summary>
 void preBattle()
 {
 	std::cout << "*****************************************************************************\n";
@@ -545,14 +621,16 @@ void preBattle()
 	std::cout << std::endl;
 	std::cout << "Enter the number of warriors you wish to send to battle: ";
 
-	int numOfWarriors;
+	int numOfWarriors;				//The number of warriors the player wants to bring into battle.
 	std::cin >> numOfWarriors;
 
 	while (true)
 	{
 		if (player.armySize >= numOfWarriors && 0 <= numOfWarriors)
 		{
+			//We set the raid party to be the amount of units the player wants to bring.
 			player.raidPartySize = numOfWarriors;
+			//We remove them from the camp army. If they come back alive they will be added back into it.
 			player.armySize -= numOfWarriors;
 			if (Faction::ORC == player.ourFaction)
 			{
@@ -574,6 +652,11 @@ void preBattle()
 	}
 }
 
+/// <summary>
+/// Takes in the array of warriors that we will add to and the amount of warriors we want to add.
+/// The function looks for the first characters that are not alive and simply makes them alive.
+/// This results in them being added to the warrior pool.
+/// </summary>
 void addWarriors(Character * t_charWarriorArray[], int t_warriorsToAdd)
 {
 	int warrirosAdded = 0;
@@ -590,6 +673,11 @@ void addWarriors(Character * t_charWarriorArray[], int t_warriorsToAdd)
 	}
 }
 
+/// <summary>
+/// In this function we transfer over the warriors to the raid party.
+/// The function simply assignes the pointer of the warriors we want to bring from warriors pointer array
+/// into the raidParty pointer array.
+/// </summary>
 void addWarriorsToRaidParty(Character * t_charArray[], Character * t_charPartyArray[], PlayerType &t_playerType)
 {
 	resetRaidPartyArray(t_charPartyArray);
@@ -611,9 +699,15 @@ void addWarriorsToRaidParty(Character * t_charArray[], Character * t_charPartyAr
 
 }
 
+/// <summary>
+/// Identic to the users version of the camp.
+/// The only diffrence is that instead of user making decision the program carries out semi random decision
+/// using the below algorythyms.
+/// </summary>
 void campAI()
 {
-	int warriorsToRecruit = (rand() % (computer.campSize / 4)) + computer.campSize / 4;
+	//Number of warriors to recruit.
+	int warriorsToRecruit = (rand() % (computer.campSize / 4)) + computer.campSize / 4; 
 	computer.campSize -= warriorsToRecruit;
 	computer.armySize += warriorsToRecruit;
 	if (Faction::ORC == computer.ourFaction)
@@ -626,6 +720,7 @@ void campAI()
 		addWarriors(trollWarriors, warriorsToRecruit);
 	}
 
+	//Number of swords to forge.
 	int swordsToForge = rand() % 2;
 
 	if (computer.gold <= swordsToForge * 30)
@@ -634,12 +729,13 @@ void campAI()
 		computer.swords += swordsToForge;
 	}
 
+	//Number of shields to forge.
 	int sheildsToForge = rand() % 4;
 
 	if (computer.gold <= sheildsToForge * 20)
 	{
 		computer.gold -= sheildsToForge * 20;
-		computer.sheild += sheildsToForge;
+		computer.sheilds += sheildsToForge;
 	}
 
 	computer.raidPartySize = (rand() % ((computer.armySize / 2) + 1)) + computer.armySize / 2;
@@ -657,15 +753,20 @@ void campAI()
 
 }
 
+/// <summary>
+/// The actual gameplay of the game.
+/// This loop takes care of the trun based combat of the game.
+/// </summary>
 void combatLoop()
 {
+	//Keeps repeating until either the player or the computer has no more units on the field.
 	while (player.raidPartySize > 0 && computer.raidPartySize > 0)
 	{
-		bool playerTurn = false;
+		bool playerTurn = false; //Used to check if it's players trun.
 
+		//Checks if the player has rolled a higher number than the AI if yes it is his turn.
 		if (Faction::ORC == player.ourFaction)
 		{
-
 			if (orcRaidParty[player.raidPartySize - 1]->rollForTurn() >= trollRaidParty[computer.raidPartySize - 1]->rollForTurn())
 			{
 				playerTurn = true;
@@ -679,6 +780,7 @@ void combatLoop()
 			}
 		}
 
+		//It is players turn.
 		if (true == playerTurn)
 		{
 			std::cout << "*****************************************************************************\n";
@@ -697,6 +799,10 @@ void combatLoop()
 	}
 }
 
+/// <summary>
+/// Takes in an input from the player for the action he/she want to undertake.
+/// It deals with that action approperatly.
+/// </summary>
 void playerBattleOptions()
 {
 	if (Faction::ORC == player.ourFaction)
@@ -715,11 +821,12 @@ void playerBattleOptions()
 	std::cout << "Shiled gives you 100 % protection until damage is taken." << std::endl;
 	std::cout << "Enter Action number: ";
 
-	int playerAction;
+	int playerAction;			//ID of the action the player wants to carry out.
 	std::cin >> playerAction;
 
 	while (true)
-	{
+	{	
+		//The player choose one of the three attack moves.
 		if (1 <= playerAction && 3 >= playerAction)
 		{
 			if (Faction::ORC == player.ourFaction)
@@ -733,6 +840,7 @@ void playerBattleOptions()
 			break;
 		}
 
+		//The player choose of the 2 defence moves.
 		else if (4 == playerAction || 5 == playerAction)
 		{
 			std::cout << "*****************************************************************************\n";
@@ -747,14 +855,18 @@ void playerBattleOptions()
 			break;
 		}
 
+		//The player choose to use a sword.
 		else if (6 == playerAction)
 		{
 			if (player.swords > 0)
 			{
 				std::cout << "*****************************************************************************\n";
 				std::cout << "You have used a sword!" << std::endl;
+
+				//Checks if the enemy has a sheild up.
 				if (false == computer.shieldActive)
 				{
+					//Enemy did not have a shield and so his unit died.
 					if (Faction::ORC == player.ourFaction)
 					{
 						trollRaidParty[computer.raidPartySize - 1]->kill();
@@ -771,7 +883,6 @@ void playerBattleOptions()
 					computer.shieldActive = false;
 				}
 				player.swords--;
-				system("Pause");
 				break;
 			}
 
@@ -782,15 +893,16 @@ void playerBattleOptions()
 			}
 		}
 
+		//The player choose to use a shield.
 		else if (7 == playerAction)
 		{
-			if (player.sheild > 0)
+			if (player.sheilds > 0)
 			{
+				//Player has equiped one of the shileds onto his unit.
 				player.shieldActive = true;
-				player.sheild--;
+				player.sheilds--;
 				std::cout << "*****************************************************************************\n";
 				std::cout << "Shield has been equipped!" << std::endl;
-				system("PAUSE");
 				break;
 			}
 			else
@@ -805,8 +917,14 @@ void playerBattleOptions()
 			std::cin >> playerAction;
 		}
 	}
+
+	std::cout << "Enemy has: " << computer.raidPartySize << " warriors left" << std::endl;
+	system("Pause");
 }
 
+/// <summary>
+/// Identical to player options with the only diffrence that the program chooses the action randomly.
+/// </summary>
 void computerBattleOptions()
 {
 	int computerAction = (rand() % 7) + 1;
@@ -875,10 +993,10 @@ void computerBattleOptions()
 
 		else if (7 == computerAction)
 		{
-			if (computer.sheild > 0)
+			if (computer.sheilds > 0)
 			{
 				computer.shieldActive = true;
-				computer.sheild--;
+				computer.sheilds--;
 				std::cout << "*****************************************************************************\n";
 				std::cout << "Enemy equipped a shield!" << std::endl;
 				break;
@@ -894,6 +1012,11 @@ void computerBattleOptions()
 	system("PAUSE");
 }
 
+/// <summary>
+/// Prints out the inofrmation about how many warriors left does the player and Ai have.
+/// Prints out much does the player's and Ai's warrior has health left.
+/// Print out all the names of the moves of the warrior that the player controls.
+/// </summary>
 void printWarriorInfo(Character * t_ourPartyArray[], Character * t_enemyPartyArray[])
 {
 	std::cout << "*****************************************************************************\n";
@@ -918,16 +1041,20 @@ void printWarriorInfo(Character * t_ourPartyArray[], Character * t_enemyPartyArr
 	t_ourPartyArray[player.raidPartySize - 1]->printDefence2();
 	std::cout << "ITEMS" << std::endl;
 	std::cout << "Action 6: swords(" << player.swords << ")" << std::endl;
-	std::cout << "Action 7: shields(" << player.sheild << ")" << std::endl;
+	std::cout << "Action 7: shields(" << player.sheilds << ")" << std::endl;
 	std::cout << "*****************************************************************************\n";
 }
 
+/// <summary>
+/// Takes care of the damage that happens from the attack of character in one array onto a character in second array.
+/// </summary>
 void attackEnemy(Character * t_ourPartyArray[], Character * t_enemyPartyArray[], PlayerType & t_enemyType, int t_actionNum, int t_ourPartySize)
 {
 	std::cout << "*****************************************************************************\n";
+	//If shield is not active damage goes through.
 	if (false == t_enemyType.shieldActive)
 	{
-		int incomingDamage;
+		int incomingDamage; //Damage that the character will recive.
 		if (1 == t_actionNum)
 		{
 			incomingDamage = t_ourPartyArray[t_ourPartySize - 1]->melee1();
@@ -964,9 +1091,11 @@ void attackEnemy(Character * t_ourPartyArray[], Character * t_enemyPartyArray[],
 		std::cout << "Shield has been destroyed! " << std::endl;
 		t_enemyType.shieldActive = false;
 	}
-	system("PAUSE");
 }
 
+/// <summary>
+/// Used to carry out the diffrent defence moves that have been selected for that character this turn.
+/// </summary>
 void defendYourself(Character * t_ourPartyArray[], int t_actionNum, int t_ourPartySize)
 {
 	if (4 == t_actionNum)
@@ -978,10 +1107,12 @@ void defendYourself(Character * t_ourPartyArray[], int t_actionNum, int t_ourPar
 	{
 		t_ourPartyArray[t_ourPartySize - 1]->defence2();
 	}
-
-	system("PAUSE");
 }
 
+/// <summary>
+/// Concludes the battle by giving the reward to the side that has won this battle.
+/// It also give the winner the option to attack the losers camp.
+/// </summary>
 void battleConclusion()
 {
 	if (computer.raidPartySize == 0)
@@ -1035,6 +1166,9 @@ void battleConclusion()
 	}
 }
 
+/// <summary>
+/// We make the raidParty pointers point at nothing.
+/// </summary>
 void resetRaidPartyArray(Character * t_partyArray[])
 {
 	for (int i = 0; i < 100; i++)
@@ -1043,6 +1177,9 @@ void resetRaidPartyArray(Character * t_partyArray[])
 	}
 }
 
+/// <summary>
+/// We reset the stats of the characters that the pointers in the warrior pointers array point to.
+/// </summary>
 void resetWarriorArray()
 {
 	for (int i = 0; i < 100; i++)
@@ -1052,6 +1189,9 @@ void resetWarriorArray()
 	}
 }
 
+/// <summary>
+/// We reset the player type to its initial values.
+/// </summary>
 void resetPlayerType(PlayerType &t_playerType)
 {
 	t_playerType.gold = 200;
@@ -1059,7 +1199,7 @@ void resetPlayerType(PlayerType &t_playerType)
 	t_playerType.campSize = 0;
 	t_playerType.raidPartySize = 0;
 	t_playerType.swords = 5;
-	t_playerType.sheild = 5;
+	t_playerType.sheilds = 5;
 
 	t_playerType.shieldActive = false;
 	t_playerType.campAttacked = false;

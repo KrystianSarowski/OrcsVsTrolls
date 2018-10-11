@@ -5,41 +5,48 @@
 #include <string>
 #include <cstdlib>
 #include <time.h>
+// @Author: Krystian Satowski
 
+//A pointer array of type character that stores all of our possible orc warriors.
 Character * orcWarriors[100];
-Character * orcRaidParty[100];
+
+//A pointer array of type character that stores pointer to orc warrios that we have brought to battle.
+Character * orcRaidParty[100];	
+
+//A pointer array of type character that stores all of our possible troll warriors.
 Character * trollWarriors[100];
+
+//A pointer array of type character that stores pointer to troll warrios that we have brought to battle.
 Character * trollRaidParty[100];
 
-Orc bob;
-
+//Enum class that determines which race that playerType controlls.
 enum class Faction
 {
 	ORC,
 	TROLL
 };
 
+//Struct used to store all the information that the player and the AI needs.
 struct PlayerType
 {
-	int gold{ 200 };
-	int armySize{ 0 };
-	int campSize{ 0 };
-	int raidPartySize{ 0 };
-	int swords{ 5 };
-	int sheild{ 5 };
-	int spells{ 0 };
+	int gold{ 200 };			//Variable for the ammount of gold possesed.
+	int armySize{ 0 };			//Variable for the amount of warriors in the camp.
+	int campSize{ 0 };			//Variable for the amount of villigares in the camp.
+	int raidPartySize{ 0 };		//Variable for the amount of warriors controlled during the battle.
+	int swords{ 5 };			//Variable for the amount of swords possesed.
+	int sheilds{ 5 };			//Variable for the amount of sheilds possesed.
 
-	bool shieldActive{ false };
-	bool campAttacked{ false };
+	bool shieldActive{ false };	//Checks if we have an active shield up.
+	bool campAttacked{ false };	//Checks if the camp cotrolled is being attacked by the enemy.
 
-	Faction ourFaction;
+	Faction ourFaction;			//The race controlled.
 };
 
-PlayerType player;
-PlayerType computer;
+PlayerType player;				//Person playing the game.
+PlayerType computer;			//An AI that I call Bob de random bot.
 
-bool victory;
-bool defeat;
+bool victory;					//Checks if the player has won the game.
+bool defeat;					//Checks if the player has been defeated.
 
 void game();
 void gameLoop();

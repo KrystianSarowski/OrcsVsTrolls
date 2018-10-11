@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <string>
+// @Author: Krystian Satowski
 
 class Character
 {
@@ -34,19 +35,19 @@ public:
 
 protected:
 
-	int m_health;
-	int m_defence;
-	int m_strength;
-	int m_speed;
+	int m_health;					//The health the character has if it hits 0 its dead.
+	int m_defence;					//The number the incoming damage needs to get through before it affects the health.
+	int m_strength;					//The base damage modifier on some attacks.
+	int m_speed;					//Base damage modifier that increases the chance of this character having a trun.
 
-	bool m_alive;
+	bool m_alive;					//Determines if the character is alive or not.
 
-	std::string m_charName;
-	std::string m_melee1Name;
-	std::string m_melee2Name;
-	std::string m_melee3Name;
-	std::string m_defence1Name;
-	std::string m_defence2Name;
+	std::string m_charName;			//The name of the character object.
+	std::string m_melee1Name;		//Name of the meele1.
+	std::string m_melee2Name;		//Name of the meele2.
+	std::string m_melee3Name;		//Name of the meele3.
+	std::string m_defence1Name;		//Name of the defence1.
+	std::string m_defence2Name;		//Name of the defence2.
 
 };
 

@@ -1,4 +1,5 @@
 #include "Troll.h"
+// @Author: Krystian Satowski
 
 Troll::Troll()
 {
@@ -13,6 +14,10 @@ Troll::Troll()
 	setStats();
 }
 
+/// <summary>
+/// Polymorphed function of melee1 called Crush.
+/// Returns incoming damage.
+/// </summary>
 int Troll::melee1()
 {
 	m_defence = 15;
@@ -21,6 +26,10 @@ int Troll::melee1()
 	return ((rand() % 25) + m_strength);
 }
 
+/// <summary>
+/// Polymorphed function of melee2 called Stomp.
+/// Returns incoming damage.
+/// </summary>
 int Troll::melee2()
 {
 	m_defence = 15;
@@ -29,6 +38,10 @@ int Troll::melee2()
 	return (rand() % 50);
 }
 
+/// <summary>
+/// Polymorphed function of melee3 called Body Slam.
+/// Returns incoming damage.
+/// </summary>
 int Troll::melee3()
 {
 	m_defence = 15;
@@ -37,6 +50,10 @@ int Troll::melee3()
 	return ((rand() % 10) + m_strength * 2);
 }
 
+/// <summary>
+/// Polymorphed function of defence1 called Protect Croch.
+/// Changes the defence stat until the character's next turn.
+/// </summary>
 void Troll::defence1()
 {
 	std::cout << "Me protect my breakfast meal!" << std::endl;
@@ -46,6 +63,10 @@ void Troll::defence1()
 	std::cout << m_charName << "'s defence went up to " << m_defence << " until his next turn." << std::endl;
 }
 
+/// <summary>
+/// Polymorphed function of defence2 called Defend Pretty Face.
+/// Changes the defence stat until the character's next turn.
+/// </summary>
 void Troll::defence2()
 {
 	std::cout << "Orc will not make me ugly as orc!" << std::endl;
@@ -59,6 +80,6 @@ void Troll::setStats()
 {
 	m_health = 150;
 	m_speed = 7;
-	m_strength = 40;
+	m_strength = 35;
 	m_defence = 15;
 }

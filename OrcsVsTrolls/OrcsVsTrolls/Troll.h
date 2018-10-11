@@ -1,8 +1,10 @@
 #pragma once
-
 #include "Character.h"
+// @Author: Krystian Satowski
 
-
+/// <summary>
+/// Sub class of character called troll.
+/// </summary>
 class Troll : public Character
 {
 public:

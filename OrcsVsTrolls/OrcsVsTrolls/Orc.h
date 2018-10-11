@@ -1,7 +1,10 @@
 #pragma once
 #include "Character.h"
+// @Author: Krystian Satowski
 
-
+/// <summary>
+/// Sub class of character called orc.
+/// </summary>
 class Orc : public Character
 {
 public:

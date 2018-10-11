@@ -1,2 +1,6 @@
-﻿  Main.cpp
+﻿  Character.cpp
+  Main.cpp
+  Orc.cpp
+  Troll.cpp
+  Generating Code...
   OrcsVsTrolls.vcxproj -> C:\Users\Krystian\Desktop\GamePlay Practical 2\OrcsVsTrolls\OrcsVsTrolls\Debug\OrcsVsTrolls.exe
